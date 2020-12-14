@@ -3,9 +3,13 @@ import os
 from discord.ext import commands
 from dotenv import load_dotenv
 import json
+import shutil
+from datetime import datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+DST_DIR = os.getenv('DST_DIR')
+BACKUP_DIR = os.getenv('BACKUP_DIR')
 
 bot = commands.Bot(command_prefix='!')
 
@@ -76,6 +80,23 @@ async def mods(ctx, *args):
         # Help
         elif (args[0] == 'help'):
             await ctx.send('Mods usage:')
+
+
+@bot.command(aliases=['backup'])
+async def save(ctx):
+    # TODO: take server name as argument
+    src = f'{DST_DIR}/Cluster_5'
+    server_name = 'the rust buster'
+
+    dest = f'{BACKUP_DIR}/{server_name}/Backup {datetime.now().strftime("%b-%d-%y %H%M")}'
+    try:
+        shutil.copytree(src, dest)
+        await ctx.send('Server saved!')
+        print(f'Server saved to {dest}')
+
+    except Exception as e:
+        await ctx.send('Backup failed :( Check console for error')
+        print(e)
 
 
 bot.run(TOKEN)
